@@ -11,7 +11,8 @@ const config = {
     CONFIG_PATH: path.join(__dirname), // 配置文件目录
     SRC_PATH: path.join(PROJECT_PATH, './src/'), // 源文件目录
     BUILD_PATH: path.join(PROJECT_PATH, './dist/'), // 打包目录
-    PUBLIC_PATH: '/assets/', // 静态文件存放目录
+    // PUBLIC_PATH: '/static/', // 静态文件存放目录
+    PUBLIC_PATH: path.join(PROJECT_PATH, './dist/static/'), // 静态文件存放目录
     HTML_PATH: path.join(PROJECT_PATH, './src/html/'),
     VENDORS_PATH: path.join(PROJECT_PATH, './src/vendors/'), // vendors目录
     NODE_MODULES_PATH: path.join(PROJECT_PATH, './node_modules/'), // node_modules目录

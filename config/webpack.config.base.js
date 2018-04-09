@@ -74,7 +74,7 @@ module.exports = {
       },
       {
         test: /\.(htm|html)$/i,
-        use:[{loader: 'html-withimg-loader'}] 
+        use:[{loader: 'html-withimg-loader?exclude=/static/'}]  //匹配static参数的路径不进行处理
       }
     ]
   },

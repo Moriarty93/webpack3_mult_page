@@ -9,6 +9,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin'); // 用于清除文�
 const uglifyjs = require('uglifyjs-webpack-plugin');  //压缩代码
 // const Purifycss = require("purifycss-webpack"); //清除多余css
 
+const CopyWebpackPlugin = require('copy-webpack-plugin'); //复制静态文件资源
+
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin'); // 提取css，提取多个来源时，需要实例化多个，并用extract方法
 
 const cssExtracter = new ExtractTextWebpackPlugin({
@@ -70,6 +72,13 @@ const webpackProd = {
     new CleanWebpackPlugin(['./dist/'], {
       root: config.PROJECT_PATH, // 默认为__dirname，所以需要调整
     }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, '../static'),
+        to: config.PUBLIC_PATH,
+        ignore: ['.*']
+      }
+    ]),
     new webpack.optimize.CommonsChunkPlugin({ // 抽取公共chunk
       name: 'commons', // 指定公共 bundle 的名称。HTMLWebpackPlugin才能识别
       filename: 'js/commons.[chunkhash:8].bundle.js'
