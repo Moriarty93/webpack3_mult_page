@@ -7,21 +7,32 @@ const webpack = require('webpack'); // 用于引用官方插件
 const webpackMerge = require('webpack-merge'); // 用于合并配置文件
 const CleanWebpackPlugin = require('clean-webpack-plugin'); // 用于清除文件夹
 const uglifyjs = require('uglifyjs-webpack-plugin');  //压缩代码
-// const Purifycss = require("purifycss-webpack"); //清除多余css
+const Purifycss = require("purifycss-webpack"); //清除多余css
 
 const CopyWebpackPlugin = require('copy-webpack-plugin'); //复制静态文件资源
 
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin'); // 提取css，提取多个来源时，需要实例化多个，并用extract方法
 
+
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');      //去除开发时的console warning
+
 const cssExtracter = new ExtractTextWebpackPlugin({
   filename: 'css/[name].[contenthash:8].css', // 直接导入的css文件，提取时添加-css标识
   allChunks: true, // 从所有的chunk中提取，当有CommonsChunkPlugin时，必须为true
 });
-
 // const lessExtracter = new ExtractTextWebpackPlugin({
 //   filename: './css/[name]-less.[contenthash:8].css', // 直接导入的less文件，提取时添加-less标识
 //   allChunks: true,
 // });
+
+
+//purifycss匹配不同文件夹下html  
+const purifycssDir = [
+  ...glob.sync(path.join(__dirname, '../src/*.html')),
+  ...glob.sync(path.join(__dirname, '../src/html/*.html')),
+  ...glob.sync(path.join(__dirname, '../src/components/*.html')),
+];
+console.log(purifycssDir);
 
 const webpackProd = {
   output: {
@@ -38,7 +49,7 @@ const webpackProd = {
             {
               loader: 'css-loader',
               options: {
-                // minimize: true //css压缩
+                minimize: true //css压缩
               }
             }, 'postcss-loader'],
             publicPath: '../', // 默认发布路径会是css，会拼接成css/img/x.png，所以需要重置
@@ -52,7 +63,7 @@ const webpackProd = {
           use: [{
               loader: 'css-loader',
               options: {
-                // minimize: true //css压缩
+                minimize: true //css压缩
               }
           }, 'postcss-loader', 'less-loader'],
           publicPath: '../', // 默认发布路径会是css，会拼接成css/img/x.png，所以需要重置
@@ -62,9 +73,9 @@ const webpackProd = {
   },
   plugins: [
     cssExtracter,
-    // new Purifycss({
-    //   paths: glob.sync(path.join(__dirname, 'src/html/*.html'))
-    // }),
+    new Purifycss({
+      paths: purifycssDir
+    }),
     new webpack.DefinePlugin({ // 指定为生产环境，进而让一些library可以做一些优化
       'process.env.NODE_ENV': JSON.stringify('production')
     }),
@@ -79,6 +90,15 @@ const webpackProd = {
         ignore: ['.*']
       }
     ]),
+    new UglifyJsPlugin({          //去除console
+      uglifyOptions: {
+        compress: {
+          warnings: false,
+          drop_debugger: true,
+          drop_console: true
+        }
+      }
+    }),
     // new webpack.optimize.CommonsChunkPlugin({ // 抽取公共chunk
     //   name: 'vendor', // 指定公共 bundle 的名称。HTMLWebpackPlugin才能识别
     //   filename: 'js/vendor.[chunkhash:8].bundle.js'
