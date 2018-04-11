@@ -14,7 +14,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin'); //复制静态文件�
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin'); // 提取css，提取多个来源时，需要实例化多个，并用extract方法
 
 const cssExtracter = new ExtractTextWebpackPlugin({
-  filename: './css/[name].[contenthash:8].css', // 直接导入的css文件，提取时添加-css标识
+  filename: 'css/[name].[contenthash:8].css', // 直接导入的css文件，提取时添加-css标识
   allChunks: true, // 从所有的chunk中提取，当有CommonsChunkPlugin时，必须为true
 });
 
@@ -38,7 +38,7 @@ const webpackProd = {
             {
               loader: 'css-loader',
               options: {
-                minimize: true //css压缩
+                // minimize: true //css压缩
               }
             }, 'postcss-loader'],
             publicPath: '../', // 默认发布路径会是css，会拼接成css/img/x.png，所以需要重置
@@ -52,7 +52,7 @@ const webpackProd = {
           use: [{
               loader: 'css-loader',
               options: {
-                minimize: true //css压缩
+                // minimize: true //css压缩
               }
           }, 'postcss-loader', 'less-loader'],
           publicPath: '../', // 默认发布路径会是css，会拼接成css/img/x.png，所以需要重置
@@ -79,10 +79,20 @@ const webpackProd = {
         ignore: ['.*']
       }
     ]),
-    new webpack.optimize.CommonsChunkPlugin({ // 抽取公共chunk
-      name: 'commons', // 指定公共 bundle 的名称。HTMLWebpackPlugin才能识别
-      filename: 'js/commons.[chunkhash:8].bundle.js'
+    // new webpack.optimize.CommonsChunkPlugin({ // 抽取公共chunk
+    //   name: 'vendor', // 指定公共 bundle 的名称。HTMLWebpackPlugin才能识别
+    //   filename: 'js/vendor.[chunkhash:8].bundle.js'
+    // }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: ['vendor', 'runtime'],                                 //增加运行文件，修改后打包变动的hash在runtime体现, vendor只提取公共用于缓存
+      filename: 'js/[name].[chunkhash:8].bundle.js',
+      minChunks: 2,
     }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'yy',                                         //是否需要再次提取公共js     对应vender minChunks需要设置Infinity，
+    //   filename: 'js/yy.[chunkhash:8].bundle.js',          //配合入口设置entry.vender = [第三方]    来分离 第三方  公共js  运行文件
+    //   chunks: ['index','page2', 'page1']
+    // }),
     new uglifyjs()
   ]
 };

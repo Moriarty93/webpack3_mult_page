@@ -24,11 +24,21 @@ let htmlDirs = getFileNameList(config.HTML_PATH);
 
 let HTMLPlugins = []; // 保存HTMLWebpackPlugin实例
 let Entries = {}; // 保存入口列表
+// 单独处理项目首页 ---结构不同
+let indexCfg = {
+  filename: 'index.html',
+  template: path.join(config.SRC_PATH, 'index.html'),
+  chunks: ['vendor', 'runtime', 'common', 'index']
+};
+Entries.index = './src/js/index.js';
+HTMLPlugins.push(new HTMLWebpackPlugin(indexCfg));
+Entries.common = './src/js/common.js';
+// Entries.vendor = ['jquery'];      //提取第三方
 
 // 生成HTMLWebpackPlugin实例和入口列表
 htmlDirs.forEach((page) => {
   let htmlConfig = {
-    filename: `${page}.html`,
+    filename: `html/${page}.html`,
     template: path.join(config.HTML_PATH, `./${page}.html`) // 模板文件
   };
 
@@ -37,7 +47,7 @@ htmlDirs.forEach((page) => {
   });
 
   if (found === -1) { // 有入口js文件的html，添加本页的入口js和公用js，并将入口js写入Entries中
-    htmlConfig.chunks = [page, 'commons'];
+    htmlConfig.chunks = ['vendor', 'runtime', 'common', page];
     Entries[page] = `./src/js/${page}.js`;
   } else { // 没有入口js文件，chunk为空
     htmlConfig.chunks = [];
@@ -46,7 +56,6 @@ htmlDirs.forEach((page) => {
   const htmlPlugin = new HTMLWebpackPlugin(htmlConfig);
   HTMLPlugins.push(htmlPlugin);
 });
-
 module.exports = {
   context: config.PROJECT_PATH, // 入口、插件路径会基于context查找
   entry: Entries,
@@ -62,7 +71,8 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 10000,
-              outputPath:'images/'
+              outputPath:'images/',
+              publicPath: '/images/'
             }
           }
         ],
