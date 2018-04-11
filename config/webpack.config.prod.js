@@ -6,7 +6,6 @@ const path = require('path');
 const webpack = require('webpack'); // 用于引用官方插件
 const webpackMerge = require('webpack-merge'); // 用于合并配置文件
 const CleanWebpackPlugin = require('clean-webpack-plugin'); // 用于清除文件夹
-const uglifyjs = require('uglifyjs-webpack-plugin');  //压缩代码
 const Purifycss = require("purifycss-webpack"); //清除多余css
 
 const CopyWebpackPlugin = require('copy-webpack-plugin'); //复制静态文件资源
@@ -14,7 +13,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin'); //复制静态文件�
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin'); // 提取css，提取多个来源时，需要实例化多个，并用extract方法
 
 
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');      //去除开发时的console warning
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');      //去除开发时的console warning 压缩js代码
 
 const cssExtracter = new ExtractTextWebpackPlugin({
   filename: 'css/[name].[contenthash:8].css', // 直接导入的css文件，提取时添加-css标识
@@ -74,7 +73,8 @@ const webpackProd = {
   plugins: [
     cssExtracter,
     new Purifycss({
-      paths: purifycssDir
+      paths: purifycssDir,
+      minimize: true   //启动purifycss后需要再设置下压缩css
     }),
     new webpack.DefinePlugin({ // 指定为生产环境，进而让一些library可以做一些优化
       'process.env.NODE_ENV': JSON.stringify('production')
@@ -113,7 +113,6 @@ const webpackProd = {
     //   filename: 'js/yy.[chunkhash:8].bundle.js',          //配合入口设置entry.vender = [第三方]    来分离 第三方  公共js  运行文件
     //   chunks: ['index','page2', 'page1']
     // }),
-    new uglifyjs()
   ]
 };
 
